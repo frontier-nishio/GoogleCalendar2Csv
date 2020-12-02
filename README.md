@@ -1,5 +1,7 @@
 # GoogleCalendar2Csv
 
+![License:Apache-2.0](https://img.shields.io/github/license/frontier-nishio/GoogleCalendar2Csv) ![Release](https://img.shields.io/github/downloads/frontier-nishio/GoogleCalendar2Csv/total)
+
 ## このプログラムについて
 
 Googleカレンダーに登録してある内容をCSV形式で出力します。
