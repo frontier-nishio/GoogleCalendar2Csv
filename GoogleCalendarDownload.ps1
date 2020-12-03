@@ -73,7 +73,11 @@ for( $i = 0; $i -lt $calArray.Count; $i++ ) {
 
     $i++;
     $tmp = $calArray[$i].ToString();
-    $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " );
+    if ($tmp.Contains("DESCRIPTION:")) {
+        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace("`\,",", ");
+    } else {
+        $i--;
+    }
 
     $i++;
     $tmp = $calArray[$i].ToString();
