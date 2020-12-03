@@ -27,7 +27,7 @@ Write-Information "Downloaded calendar. Path: ${calSavePath}";
 $outputFileName = (Get-Date).ToString("yyyyMMdd_hhmmss") + "_export_calendar.csv";
 $calArray = @(Get-Content -Path $calSavePath -Encoding UTF8 | Select-String -Pattern "DTSTART:", "DTSTART;VALUE=DATE:", "DTEND:", "DTEND;VALUE=DATE:", "SUMMARY:", "DESCRIPTION:");
 
-$result = "";
+$result = "Start Date, End Date, Summary, Description`r`n";
 $dtStart;
 $dtEnd;
 $summary;
