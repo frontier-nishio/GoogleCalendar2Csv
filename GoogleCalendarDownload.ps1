@@ -33,7 +33,12 @@ $dtEnd;
 $summary;
 $description;
 
-for( $i = 0; $i -lt $calArray.Count; $i++ ) {
+$i = 0;
+if ($calArray[0].ToString().Contains("DTSTART:19700101T000000")) {
+    $i = 1;
+}
+
+for( ; $i -lt $calArray.Count; $i++ ) {
 
     $tmp = $calArray[$i].ToString();
     try {
