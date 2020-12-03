@@ -27,13 +27,18 @@ Write-Information "Downloaded calendar. Path: ${calSavePath}";
 $outputFileName = (Get-Date).ToString("yyyyMMdd_hhmmss") + "_export_calendar.csv";
 $calArray = @(Get-Content -Path $calSavePath -Encoding UTF8 | Select-String -Pattern "DTSTART:", "DTSTART;VALUE=DATE:", "DTEND:", "DTEND;VALUE=DATE:", "SUMMARY:", "DESCRIPTION:");
 
-$result = "Start Date, End Date, Summary, Description`r`n";
-$dtStart;
-$dtEnd;
-$summary;
-$description;
+$result         = "Start Date, End Date, Summary, Description`r`n";
+$dtStart        = $null;
+$dtEnd          = $null;
+$summary        = $null;
+$description    = $null;
 
-for( $i = 0; $i -lt $calArray.Count; $i++ ) {
+$i = 0;
+if ($calArray[0].ToString().Contains("DTSTART:19700101T000000")) {
+    $i = 1;
+}
+
+for( ; $i -lt $calArray.Count; $i++ ) {
 
     $tmp = $calArray[$i].ToString();
     try {
@@ -74,7 +79,10 @@ for( $i = 0; $i -lt $calArray.Count; $i++ ) {
     $i++;
     $tmp = $calArray[$i].ToString();
     if ($tmp.Contains("DESCRIPTION:")) {
-        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace("`\,",", ");
+        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace( "`\,", ", " );
+        while ($description.Contains(", ,")) {
+            $description = $description.Replace( ", ,", ", " );
+        }
     } else {
         $i--;
     }
@@ -82,8 +90,14 @@ for( $i = 0; $i -lt $calArray.Count; $i++ ) {
     $i++;
     $tmp = $calArray[$i].ToString();
     $summary        =   $tmp.Replace( "SUMMARY:", "" );
+    while ($summary.Contains(", ,")) {
+        $summary    = $summary.Replace( ", ,", ", " );
+    }
 
     $result         +=  $dtStart.ToString("yyyy/MM/dd") + ", " + $dtEnd.ToString("yyyy/MM/dd") + ", " + $summary + ", " + $description + "`r`n";
+    while ($result.Contains(", ,")) {
+        $result    = $result.Replace( ", ,", ", " );
+    }
 
 }
 
