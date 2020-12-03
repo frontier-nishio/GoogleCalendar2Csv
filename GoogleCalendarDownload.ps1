@@ -74,7 +74,10 @@ for( $i = 0; $i -lt $calArray.Count; $i++ ) {
     $i++;
     $tmp = $calArray[$i].ToString();
     if ($tmp.Contains("DESCRIPTION:")) {
-        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace("`\,",", ");
+        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace( "`\,", ", " );
+        while ($description.Contains(", ,")) {
+            $description = $description.Replace( ", ,", ", " );
+        }
     } else {
         $i--;
     }
@@ -82,8 +85,14 @@ for( $i = 0; $i -lt $calArray.Count; $i++ ) {
     $i++;
     $tmp = $calArray[$i].ToString();
     $summary        =   $tmp.Replace( "SUMMARY:", "" );
+    while ($summary.Contains(", ,")) {
+        $summary    = $summary.Replace( ", ,", ", " );
+    }
 
     $result         +=  $dtStart.ToString("yyyy/MM/dd") + ", " + $dtEnd.ToString("yyyy/MM/dd") + ", " + $summary + ", " + $description + "`r`n";
+    while ($result.Contains(", ,")) {
+        $result    = $result.Replace( ", ,", ", " );
+    }
 
 }
 
