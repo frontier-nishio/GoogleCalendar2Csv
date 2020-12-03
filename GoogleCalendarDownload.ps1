@@ -27,7 +27,7 @@ Write-Information "Downloaded calendar. Path: ${calSavePath}";
 $outputFileName = (Get-Date).ToString("yyyyMMdd_hhmmss") + "_export_calendar.csv";
 $calArray = @(Get-Content -Path $calSavePath -Encoding UTF8 | Select-String -Pattern "DTSTART:", "DTSTART;VALUE=DATE:", "DTEND:", "DTEND;VALUE=DATE:", "SUMMARY:", "DESCRIPTION:");
 
-$result = "";
+$result = "Start Date, End Date, Summary, Description`r`n";
 $dtStart;
 $dtEnd;
 $summary;
@@ -36,30 +36,48 @@ $description;
 for( $i = 0; $i -lt $calArray.Count; $i++ ) {
 
     $tmp = $calArray[$i].ToString();
-    if ($tmp.Contains("DTSTART:")) {
-        $tmp        =   $tmp.Replace( "DTSTART:", "" ).Replace( "T", " " );
-        $dtStart    =   [DateTime]::ParseExact( $tmp, "yyyyMMdd HHmmssZ", $null );
-    } else {
-        $tmp        =   $tmp.Replace( "DTSTART;VALUE=DATE:", "" );
-        $dtStart    =   [DateTime]::ParseExact( $tmp, "yyyyMMdd", $null );
+    try {
+        if ($tmp.Contains("DTSTART:")) {
+            $tmp        =   $tmp.Replace( "DTSTART:", "" ).Replace( "T", " " );
+            $dtStart    =   [DateTime]::ParseExact( $tmp, "yyyyMMdd HHmmssZ", $null );
+        } elseif ($tmp.Contains("DTSTART;VALUE=DATE:")) {
+            $tmp        =   $tmp.Replace( "DTSTART;VALUE=DATE:", "" );
+            $dtStart    =   [DateTime]::ParseExact( $tmp, "yyyyMMdd", $null );
+        } else {
+            $i--;
+        }
+    } catch {
+        Write-Output "DTSTART Error.";
+        Write-Output $tmp
     }
 
     $i++;
     $tmp = $calArray[$i].ToString();
-    if ($tmp.Contains("DTEND:")) {
-        $tmp        =   $tmp.Replace( "DTEND:", "" ).Replace( "T", " " );
-        $dtEnd      =   [DateTime]::ParseExact( $tmp.Replace( "DTEND:", "" ), "yyyyMMdd HHmmssZ", $null );
-    } elseif ( $tmp.Contains("DTEND;VALUE=DATE:") ) {
-        $tmp        =   $tmp.Replace( "DTEND;VALUE=DATE:", "" );
-        $dtEnd      =   [DateTime]::ParseExact( $tmp, "yyyyMMdd", $null );
+    try {
+        if ($tmp.Contains("DTEND:")) {
+            $tmp        =   $tmp.Replace( "DTEND:", "" ).Replace( "T", " " );
+            $dtEnd      =   [DateTime]::ParseExact( $tmp.Replace( "DTEND:", "" ), "yyyyMMdd HHmmssZ", $null );
+        } elseif ( $tmp.Contains("DTEND;VALUE=DATE:") ) {
+            $tmp        =   $tmp.Replace( "DTEND;VALUE=DATE:", "" );
+            $dtEnd      =   [DateTime]::ParseExact( $tmp, "yyyyMMdd", $null );
+        } elseif ($tmp.Contains("DESCRIPTION:") -or $tmp.Contains("SUMMARY:")) {
+            $i--;
+        } else {
+            $dtEnd      =   $dtStart;
+            $i--;
+        }
+    } catch {
+        Write-Output "DTEND Error.";
+        Write-Output $tmp
+    }
+
+    $i++;
+    $tmp = $calArray[$i].ToString();
+    if ($tmp.Contains("DESCRIPTION:")) {
+        $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " ).Replace("`\,",", ");
     } else {
-        $dtEnd      =   $dtStart;
         $i--;
     }
-
-    $i++;
-    $tmp = $calArray[$i].ToString();
-    $description    =   $tmp.Replace( "DESCRIPTION:", "" ).Replace( "<br>", ", " ).Replace( "\n", ", " );
 
     $i++;
     $tmp = $calArray[$i].ToString();
